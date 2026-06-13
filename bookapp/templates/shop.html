@@ -1,0 +1,155 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Shop Books - BookStore</title>
+    <link rel="stylesheet" href="{% static 'css/style.css' %}">
+    <style>
+        .shop-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+            gap: 25px;
+            margin-top: 30px;
+        }
+
+        .book-card {
+            background: rgba(30, 41, 59, 0.4);
+            border: 1px solid var(--card-border);
+            border-radius: 16px;
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+        }
+
+        .book-card:hover {
+            transform: translateY(-5px);
+            border-color: var(--primary-color);
+            background: rgba(30, 41, 59, 0.6);
+            box-shadow: 0 8px 16px rgba(99, 102, 241, 0.15);
+        }
+
+        .book-title {
+            font-size: 1.25rem;
+            font-weight: 700;
+            margin-top: 0;
+            margin-bottom: 8px;
+            color: var(--text-primary);
+        }
+
+        .book-author {
+            color: var(--text-secondary);
+            font-size: 0.95rem;
+            margin-bottom: 12px;
+        }
+
+        .book-meta {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+            font-size: 0.85rem;
+        }
+
+        .book-genre {
+            background: rgba(99, 102, 241, 0.15);
+            color: #a5b4fc;
+            padding: 4px 10px;
+            border-radius: 8px;
+            font-weight: 500;
+        }
+
+        .book-price {
+            font-size: 1.4rem;
+            font-weight: 700;
+            color: #818cf8;
+        }
+
+        .book-seller {
+            font-size: 0.8rem;
+            color: var(--text-secondary);
+            margin-bottom: 15px;
+            border-top: 1px solid rgba(255,255,255,0.05);
+            padding-top: 10px;
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <nav>
+            <div class="logo">
+                <a href="{% url 'home' %}" style="font-size: 1.5rem; font-weight: 700; background: linear-gradient(to right, #a5b4fc, #818cf8); -webkit-background-clip: text; -webkit-text-fill-color: transparent;">BookStore</a>
+            </div>
+            <ul>
+                <li><a href="{% url 'shop' %}">Shop</a></li>
+                {% if user.is_authenticated %}
+                <li><a href="{% url 'cart' %}">Cart</a></li>
+                <li><a href="{% url 'orders' %}">Orders</a></li>
+                <li><a href="{% url 'show_book' %}">Seller Portal</a></li>
+                <li class="logout"><a href="{% url 'logout' %}" class="btn" style="padding: 8px 16px; font-size: 0.9rem; background-color: var(--danger-color);">Logout</a></li>
+                {% else %}
+                <li><a href="{% url 'login' %}">Login</a></li>
+                <li><a href="{% url 'register' %}" class="btn" style="padding: 8px 16px; font-size: 0.9rem;">Sign Up</a></li>
+                {% endif %}
+            </ul>
+        </nav>
+    </header>
+
+    <div class="container">
+        <h2>Browse Book Catalog</h2>
+        
+        <form method="get" action="{% url 'shop' %}" style="flex-direction: row; gap: 10px; align-items: center; display: flex; flex-wrap: wrap;">
+            <input type="search" id="search" name="search" placeholder="Search title, author, or ISBN..." value="{{ search_query|default:'' }}" style="flex: 2; min-width: 200px;">
+            
+            <select id="genre" name="genre" style="flex: 1; min-width: 150px;">
+                <option value="">All Genres</option>
+                {% for genre in genres %}
+                <option value="{{ genre }}" {% if selected_genre == genre %}selected{% endif %}>{{ genre }}</option>
+                {% endfor %}
+            </select>
+            
+            <input type="submit" value="Filter" style="padding: 12px 24px;">
+            {% if search_query or selected_genre %}
+            <a href="{% url 'shop' %}" class="btn" style="background: rgba(255,255,255,0.05); border: 1px solid var(--card-border); color: var(--text-primary); padding: 12px 24px;">Reset</a>
+            {% endif %}
+        </form>
+
+        <div class="shop-grid">
+            {% if books %}
+            {% for book in books %}
+            <div class="book-card">
+                <div>
+                    <h3 class="book-title">{{ book.title }}</h3>
+                    <div class="book-author">by {{ book.author }}</div>
+                    <div class="book-meta">
+                        <span class="book-genre">{{ book.genre }}</span>
+                        <span class="book-price">${{ book.price }}</span>
+                    </div>
+                </div>
+                <div>
+                    <div class="book-seller">Seller: {{ book.user.username }}</div>
+                    {% if user.is_authenticated %}
+                        {% if book.user == user %}
+                        <button class="btn" style="width: 100%; background: rgba(255,255,255,0.05); border: 1px solid var(--card-border); color: var(--text-secondary); cursor: not-allowed;" disabled>Your Listing</button>
+                        {% else %}
+                        <a href="{% url 'add_to_cart' book_id=book.pk %}" class="btn" style="width: 100%; text-decoration: none;">Add to Cart</a>
+                        {% endif %}
+                    {% else %}
+                    <a href="{% url 'login' %}?next={% url 'shop' %}" class="btn" style="width: 100%; text-decoration: none;">Login to Buy</a>
+                    {% endif %}
+                </div>
+            </div>
+            {% endfor %}
+            {% else %}
+            <div style="grid-column: 1/-1; text-align: center; color: var(--text-secondary); padding: 50px 0;">
+                <h3>No books found matching your criteria.</h3>
+            </div>
+            {% endif %}
+        </div>
+    </div>
+</body>
+</html>

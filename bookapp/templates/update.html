@@ -1,0 +1,56 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Update Book - Bookstore</title>
+    <link rel="stylesheet" href="{% static 'css/style.css' %}">
+</head>
+<body>
+    <header>
+        <nav>
+            <div class="logo">
+                <a href="{% url 'home' %}" style="font-size: 1.5rem; font-weight: 700; background: linear-gradient(to right, #a5b4fc, #818cf8); -webkit-background-clip: text; -webkit-text-fill-color: transparent;">BookStore</a>
+            </div>
+            <ul>
+                {% if user.is_authenticated %}
+                <li style="color:#fff"><span style="color: var(--text-secondary); margin-right: 5px;">User:</span><strong>{{ user.username }}</strong></li>
+                {% endif %}
+                <li><a href="{% url 'show_book' %}">Dashboard</a></li>
+                <li class="logout"><a href="{% url 'logout' %}" class="btn" style="padding: 8px 16px; font-size: 0.9rem; background-color: var(--danger-color);">Logout</a></li>
+            </ul>
+        </nav>
+    </header>
+
+    {% if updated_data %}
+    <div class="container" style="max-width: 600px;">
+        <h2>Update Book</h2>
+        <form action="{% url 'update_book' pk=updated_data.pk %}" method="post"> 
+            {% csrf_token %}
+            <label for="title">Title</label>
+            <input type="text" id="title" name="title" value="{{updated_data.title}}" required>
+
+            <label for="author">Author</label>
+            <input type="text" id="author" name="author" value="{{updated_data.author}}" required>
+             
+            <label for="isbn">ISBN</label>
+            <input type="text" id="isbn" name="isbn" value="{{updated_data.isbn}}" required>
+
+            <label for="price">Price ($)</label>
+            <input type="text" id="price" name="price" value="{{updated_data.price}}" required>
+
+            <label for="genre">Genre</label>
+            <select id="genre" name="genre">
+                <option value="fiction" {% if updated_data.genre == 'fiction' %}selected{% endif %}>fiction</option>
+                <option value="non-fiction" {% if updated_data.genre == 'non-fiction' %}selected{% endif %}>non-fiction</option>
+                <option value="fantasy" {% if updated_data.genre == 'fantasy' %}selected{% endif %}>fantasy</option>
+                <option value="mystery" {% if updated_data.genre == 'mystery' %}selected{% endif %}>mystery</option>
+            </select>
+            <br>
+            <input type="submit" value="Update Book"> 
+        </form>
+    </div>
+    {% endif %}
+</body>
+</html>

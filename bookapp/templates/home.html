@@ -1,0 +1,86 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>BookStore - Welcome</title>
+    <link rel="stylesheet" href="{% static 'css/style.css' %}">
+    <style>
+        .hero {
+            text-align: center;
+            padding: 80px 20px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            max-width: 800px;
+            margin: 50px auto;
+            background: var(--card-bg);
+            border: 1px solid var(--card-border);
+            border-radius: 24px;
+            box-shadow: var(--shadow);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            animation: fadeIn 0.8s ease-out;
+        }
+        
+        .hero h1 {
+            font-size: 3.5rem;
+            font-weight: 800;
+            margin-bottom: 20px;
+            background: linear-gradient(to right, #c7d2fe, #818cf8, #a5b4fc);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .hero p {
+            font-size: 1.25rem;
+            color: var(--text-secondary);
+            line-height: 1.6;
+            margin-bottom: 40px;
+            max-width: 600px;
+        }
+
+        .cta-buttons {
+            display: flex;
+            gap: 20px;
+            justify-content: center;
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <nav>
+            <div class="logo">
+                <a href="{% url 'home' %}" style="font-size: 1.5rem; font-weight: 700; background: linear-gradient(to right, #a5b4fc, #818cf8); -webkit-background-clip: text; -webkit-text-fill-color: transparent;">BookStore</a>
+            </div>
+            <ul>
+                <li><a href="{% url 'shop' %}">Shop</a></li>
+                {% if user.is_authenticated %}
+                <li><a href="{% url 'cart' %}">Cart</a></li>
+                <li><a href="{% url 'orders' %}">Orders</a></li>
+                <li><a href="{% url 'show_book' %}">Seller Portal</a></li>
+                <li style="color:#fff"><span style="color: var(--text-secondary); margin-right: 5px;">User:</span><strong>{{ user.username }}</strong></li>
+                <li class="logout"><a href="{% url 'logout' %}" class="btn" style="padding: 8px 16px; font-size: 0.9rem; background-color: var(--danger-color);">Logout</a></li>
+                {% else %}
+                <li><a href="{% url 'login' %}">Login</a></li>
+                <li><a href="{% url 'register' %}" class="btn" style="padding: 8px 16px; font-size: 0.9rem;">Sign Up</a></li>
+                {% endif %}
+            </ul>
+        </nav>
+    </header>
+
+    <div class="hero">
+        <h1>BookStore Management</h1>
+        <p>A sleek, modern platform to catalog, organize, and manage your book collection effortlessly. Track titles, authors, genres, and prices in real time.</p>
+        
+        <div class="cta-buttons">
+            <a href="{% url 'shop' %}" class="btn" style="font-size: 1.1rem; padding: 14px 32px;">Go to Shop</a>
+            {% if not user.is_authenticated %}
+            <a href="{% url 'login' %}" class="btn" style="font-size: 1.1rem; padding: 14px 32px; background: rgba(255, 255, 255, 0.05); border: 1px solid var(--card-border); color: var(--text-primary);">Log In</a>
+            {% endif %}
+        </div>
+    </div>
+</body>
+</html>

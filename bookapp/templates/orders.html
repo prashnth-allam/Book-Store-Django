@@ -1,0 +1,164 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Your Orders - BookStore</title>
+    <link rel="stylesheet" href="{% static 'css/style.css' %}">
+    <style>
+        .order-card {
+            background: rgba(30, 41, 59, 0.4);
+            border: 1px solid var(--card-border);
+            border-radius: 16px;
+            padding: 25px;
+            margin-bottom: 25px;
+            animation: fadeIn 0.5s ease-out;
+        }
+
+        .order-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+            padding-bottom: 15px;
+            margin-bottom: 15px;
+            flex-wrap: wrap;
+            gap: 10px;
+        }
+
+        .order-id {
+            font-size: 1.15rem;
+            font-weight: 700;
+            color: var(--text-primary);
+        }
+
+        .order-date {
+            color: var(--text-secondary);
+            font-size: 0.9rem;
+        }
+
+        .order-status {
+            padding: 6px 12px;
+            border-radius: 8px;
+            font-size: 0.85rem;
+            font-weight: 600;
+        }
+
+        .status-pending {
+            background: rgba(245, 158, 11, 0.15);
+            color: #fbbf24;
+            border: 1px solid rgba(245, 158, 11, 0.25);
+        }
+
+        .status-shipped {
+            background: rgba(59, 130, 246, 0.15);
+            color: #60a5fa;
+            border: 1px solid rgba(59, 130, 246, 0.25);
+        }
+
+        .status-delivered {
+            background: rgba(16, 185, 129, 0.15);
+            color: #34d399;
+            border: 1px solid rgba(16, 185, 129, 0.25);
+        }
+
+        .order-items {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        .order-item-row {
+            display: flex;
+            justify-content: space-between;
+            font-size: 0.95rem;
+            color: var(--text-secondary);
+        }
+
+        .order-footer {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-top: 1px solid rgba(255, 255, 255, 0.05);
+            padding-top: 15px;
+            margin-top: 15px;
+        }
+
+        .order-total {
+            font-size: 1.25rem;
+            font-weight: 700;
+            color: #818cf8;
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <nav>
+            <div class="logo">
+                <a href="{% url 'home' %}" style="font-size: 1.5rem; font-weight: 700; background: linear-gradient(to right, #a5b4fc, #818cf8); -webkit-background-clip: text; -webkit-text-fill-color: transparent;">BookStore</a>
+            </div>
+            <ul>
+                <li><a href="{% url 'shop' %}">Shop</a></li>
+                {% if user.is_authenticated %}
+                <li><a href="{% url 'cart' %}">Cart</a></li>
+                <li><a href="{% url 'orders' %}">Orders</a></li>
+                <li><a href="{% url 'show_book' %}">Seller Portal</a></li>
+                <li class="logout"><a href="{% url 'logout' %}" class="btn" style="padding: 8px 16px; font-size: 0.9rem; background-color: var(--danger-color);">Logout</a></li>
+                {% else %}
+                <li><a href="{% url 'login' %}">Login</a></li>
+                <li><a href="{% url 'register' %}" class="btn" style="padding: 8px 16px; font-size: 0.9rem;">Sign Up</a></li>
+                {% endif %}
+            </ul>
+        </nav>
+    </header>
+
+    <div class="container">
+        <h2>Your Orders History</h2>
+        
+        {% if orders %}
+            {% for order in orders %}
+            <div class="order-card">
+                <div class="order-header">
+                    <div>
+                        <span class="order-id">Order #{{ order.pk }}</span>
+                        <span class="order-date" style="margin-left: 15px;">placed on {{ order.created_at|date:"F j, Y, g:i a" }}</span>
+                    </div>
+                    <span class="order-status {% if order.status == 'Pending' %}status-pending{% elif order.status == 'Shipped' %}status-shipped{% else %}status-delivered{% endif %}">
+                        {{ order.status }}
+                    </span>
+                </div>
+                
+                <ul class="order-items">
+                    {% for item in order.items.all %}
+                    <li class="order-item-row">
+                        <span>{{ item.title }} <strong style="color: var(--text-primary); margin-left: 5px;">x {{ item.quantity }}</strong></span>
+                        <span style="color: var(--text-primary);">${{ item.total_price }}</span>
+                    </li>
+                    {% endfor %}
+                </ul>
+                
+                <div class="order-footer">
+                    <div style="font-size: 0.85rem; color: var(--text-secondary);">
+                        <strong>Deliver to:</strong> {{ order.name }} | {{ order.phone }}<br>
+                        <strong>Address:</strong> {{ order.shipping_address }}
+                    </div>
+                    <div>
+                        <span style="color: var(--text-secondary); font-size: 0.9rem; margin-right: 10px;">Total Paid:</span>
+                        <span class="order-total">${{ order.total_price }}</span>
+                    </div>
+                </div>
+            </div>
+            {% endfor %}
+        {% else %}
+        <div style="text-align: center; padding: 60px 0;">
+            <p style="color: var(--text-secondary); font-size: 1.2rem; margin-bottom: 30px;">You haven't placed any orders yet.</p>
+            <a href="{% url 'shop' %}" class="btn" style="padding: 14px 32px;">Start Shopping</a>
+        </div>
+        {% endif %}
+    </div>
+</body>
+</html>
